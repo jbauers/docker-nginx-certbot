@@ -1,20 +1,6 @@
 #!/bin/bash
 
-# Helper function to output error messages to STDERR, with red text
-error() {
-    (set +x; tput -Tscreen bold
-    tput -Tscreen setaf 1
-    echo $*
-    tput -Tscreen sgr0) >&2
-}
-
-# Helper function that sifts through /etc/nginx/conf.d/, looking for lines that
-# contain ssl_certificate_key, and try to find domain names in them.  We accept
-# a very restricted set of keys: Each key must map to a set of concrete domains
-# (no wildcards) and each keyfile will be stored at the default location of
-# /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
 parse_domains() {
-    # For each configuration file in /etc/nginx/conf.d/*.conf*
     for conf_file in /etc/nginx/conf.d/*.conf*; do
         sed -n -r -e 's&^\s*ssl_certificate_key\s*\/etc/letsencrypt/live/(.*)/privkey.pem;\s*(#.*)?$&\1&p' $conf_file | xargs echo
     done
@@ -85,35 +71,13 @@ is_renewal_required() {
     [ ! -e "$last_renewal_file" ] && return;
     
     # If the file exists, check if the last renewal was more than a week ago
+    # FIXME(jbauers): stat is a really unreliable way to check this. Use
+    # openssl instead. See example script here:
+    # https://superuser.com/questions/618370/check-expiry-date-of-ssl-certificate-for-multiple-remote-servers
     one_week_sec=604800
-    now_sec=$(date -d now +%s)
+    now_sec=$(date +%s)
     last_renewal_sec=$(stat -c %Y "$last_renewal_file")
     last_renewal_delta_sec=$(( ($now_sec - $last_renewal_sec) ))
     is_finshed_week_sec=$(( ($one_week_sec - $last_renewal_delta_sec) ))
     [ $is_finshed_week_sec -lt 0 ]
-}
-
-# copies any *.conf files in /etc/nginx/user.conf.d
-# to /etc/nginx/conf.d so they are included as configs
-# this allows a user to easily mount their own configs
-# We make use of `envsubst` to allow for on-the-fly templating
-# of the user configs.
-template_user_configs() {
-    SOURCE_DIR="${1-/etc/nginx/user.conf.d}"
-    TARGET_DIR="${2-/etc/nginx/conf.d}"
-
-    # envsubst needs dollar signs in front of all variable names
-    DENV=$(echo ${ENVSUBST_VARS} | sed -E 's/\$*([^ ]+)/\$\1/g')
-
-    echo "templating scripts from ${SOURCE_DIR} to ${TARGET_DIR}"
-    echo "Substituting variables ${DENV}"
-
-    if [ ! -d "$SOURCE_DIR" ]; then
-        echo "no ${SOURCE_DIR}, nothing to do."
-    else
-        for conf in ${SOURCE_DIR}/*.conf; do
-            echo " -> ${conf}"
-            envsubst "${DENV}" <"${conf}" > "${TARGET_DIR}/$(basename ${conf})"
-        done
-    fi
 }
