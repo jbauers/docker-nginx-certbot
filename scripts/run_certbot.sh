@@ -8,13 +8,9 @@ if [ -z "$CERTBOT_EMAIL" ]; then
 fi
 
 for domain in $(parse_domains); do
-    if is_renewal_required $domain; then
-        if ! get_certificate $domain $CERTBOT_EMAIL; then
-            echo "Cerbot failed for $domain. Check the logs for details."
-            echo 1
-        fi
-    else
-        echo "Not run certbot for $domain; last renewal happened just recently."
+    if ! get_certificate $domain $CERTBOT_EMAIL; then
+        echo "Cerbot failed for $domain. Check the logs for details."
+        echo 1
     fi
 done
 

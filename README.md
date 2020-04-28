@@ -4,11 +4,6 @@ More or less the same as https://github.com/staticfloat/docker-nginx-certbot,
 but a bit less: Uses Alpine, which has certbot packaged, and we also don't want
 compose or fancy red error codes.
 
-FIXME: `stat -c` is used to check whether a cert should be renewed, which is
-"simple". OpenSSL should be used to check the validity instead. Arguably those
-files should never be touched, but copying the certs will break renewal. This
-may or may not be an issue depending on the setup.
-
 ## Usage
 
 To test everything:
@@ -50,7 +45,6 @@ much here.
 
 ## Why?
 
-One day, when I'm less lazy, I'd like to fix the FIXME and maybe have a look at the
-regex stuff. For now I just wanted something more standard than the provided one and
-use an Alpine base. I also prefer a `./run.sh` over `docker-compose up` and there's
-some HSTS and cache stuff in here.
+For now I just wanted something more standard than the provided one and use an Alpine base.
+I also prefer a `./run.sh` over `docker-compose up` and there's some HSTS and cache stuff
+in here.
