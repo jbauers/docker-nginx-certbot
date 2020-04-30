@@ -7,7 +7,10 @@ ENTRYPOINT /entrypoint.sh
 
 COPY scripts /scripts
 
+# FIXME: Use a real email
 ENV CERTBOT_EMAIL mail@example.com
 
-# COPY example.com /usr/share/nginx/html/example.com
+# FIXME: Default to staging
+ENV IS_STAGING 1
+
 COPY conf.d /etc/nginx/conf.d

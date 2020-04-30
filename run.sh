@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Remove these files to get updated ones.
-ssl_options="$PWD/conf/options-ssl-nginx.conf"
-ssl_dhparams="$PWD/conf/ssl-dhparams.pem"
+ssl_options="$PWD/conf.d/options-ssl-nginx.conf"
+ssl_dhparams="$PWD/conf.d/ssl-dhparams.pem"
 
 if [ ! -e "$ssl_options" ] || [ ! -e "$ssl_dhparams" ]; then
 	base_url='https://raw.githubusercontent.com/certbot/certbot/master'

@@ -15,8 +15,7 @@ while [ true ]; do
         exit 1
     fi
 
-    echo "Run certbot"
-    /scripts/run_certbot.sh
+    /scripts/certbot.sh
     kill -HUP $NGINX_PID
 
     sleep 604810 &

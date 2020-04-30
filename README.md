@@ -1,42 +1,35 @@
 # Nginx with automated HTTPS and renewal
 
 More or less the same as https://github.com/staticfloat/docker-nginx-certbot,
-but a bit less: Uses Alpine, which has certbot packaged, and we also don't want
+but a bit less. Uses Alpine, which has certbot packaged, and we also don't want
 compose or fancy red error codes.
 
-## Usage
+## Quickstart
 
-To test everything:
+- Look at the scripts in `scripts`
+- Adjust configuration files in `conf.d`
+- Add production settings in `Dockerfile`
+- Run `./run.sh`
 
-1. Add `example.com` to your `/etc/hosts` (localhost HTTPS redirect may be special)
-2. `./run.sh`
+### Quicker start
 
-If renewal fails because of an email, add a real one to the `Dockerfile`. If you're
-not on a public box and certbot tries to renew, you can `touch certs/*.pem` and Nginx
-can start up (and won't renew). This is because of the FIXME above - if you've just
-cloned this repo, it won't be an issue, but after a week you'll run into it.
-
-On a public box, things should _just work_.
+- `./run.sh`
 
 ## Let's Encrypt
 
 Check the `scripts` folder to see how it works. It uses certbot and renews
-weekly. A default `conf/common.conf` points HTTP 80 to localhost on port
-1337. This is where certbot will be listening, see `scripts/run_certbot.sh`.
-
-Note that servers only speak HTTPS, so don't even listen on port 80 for those.
-`conf/common.conf` will redirect everything to HTTPS (except localhost). Only
-certbot's ACME challenge speaks plain HTTP in order to get SSL certificates.
+weekly. A default `conf.d/default.conf` points HTTP 80 to localhost on port
+1337. This is where certbot will be listening, see `scripts/certbot.sh`.
 
 The following directives are required in each Nginx `server` block:
 
 ```
-ssl_certificate /etc/letsencrypt/live/MY_DOMAIN/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/MY_DOMAIN/privkey.pem;
+ssl_certificate /etc/letsencrypt/live/<MY_DOMAIN>/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/<MY_DOMAIN>/privkey.pem;
 ```
 
-Apart from that, any server block like `conf/example.conf` can be added, and will
-automatically get updated certs each week.
+Apart from that, any server block like `conf.d/example.com.conf` can be added, and will
+automatically get updated certs.
 
 # Notes
 
@@ -46,5 +39,4 @@ much here.
 ## Why?
 
 For now I just wanted something more standard than the provided one and use an Alpine base.
-I also prefer a `./run.sh` over `docker-compose up` and there's some HSTS and cache stuff
-in here.
+I also prefer a `./run.sh` over `docker-compose up`.
